@@ -3,25 +3,27 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const Admin = require("../models/Admin");
 
-// ⚠️ TEMPORARY ROUTE — DELETE AFTER SUCCESS
+// TEMPORARY SEED ROUTE
 router.post("/seed-admin", async (req, res) => {
   try {
-    // Ensure DB connection (Vercel-safe)
     if (mongoose.connection.readyState === 0) {
       await mongoose.connect(process.env.MONGO_URI);
     }
 
     await Admin.deleteMany();
 
-    await Admin.create({
+    const admin = await Admin.create({
       email: "admin@arahinfotech.com",
-      password: "admin@123", // bcrypt will hash automatically
+      password: "admin@123",
     });
 
-    res.json({ message: "✅ Admin seeded successfully" });
+    res.status(200).json({
+      message: "Admin seeded successfully",
+      email: admin.email,
+    });
   } catch (error) {
-    console.error("Seed admin error:", error);
-    res.status(500).json({ message: error.message });
+    console.error("Seed error:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
